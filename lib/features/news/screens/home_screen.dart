@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// HomeScreen - Main screen of the app
-/// Day 1: Basic placeholder to test theme and navigation
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 

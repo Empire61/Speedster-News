@@ -23,7 +23,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       
-      // Color Scheme (FIXED: Added onPrimary/onSecondary for proper contrast)
+      // Color Scheme 
       colorScheme: const ColorScheme.light(
         primary: _primaryLight,
         onPrimary: Colors.white, // Text color on primary buttons
@@ -50,7 +50,7 @@ class AppTheme {
         ),
       ),
 
-      // Card Theme (FIXED: Reduced elevation for better visual hierarchy)
+      // Card Theme 
       cardTheme: CardThemeData(
         elevation: 1,
         shadowColor: Colors.black26,
@@ -142,7 +142,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       
-      // Color Scheme (FIXED: Added onPrimary/onSecondary)
+      // Color Scheme 
       colorScheme: const ColorScheme.dark(
         primary: _primaryDark,
         onPrimary: Colors.black, // Better contrast for dark mode
@@ -169,7 +169,7 @@ class AppTheme {
         ),
       ),
 
-      // Card Theme (FIXED: Reduced elevation from 4 to 2 for accessibility)
+      // Card Theme 
       cardTheme: CardThemeData(
         elevation: 2, // Lower elevation in dark mode
         shadowColor: Colors.black54,
