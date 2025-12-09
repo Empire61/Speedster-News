@@ -1,12 +1,9 @@
-import 'package:dio/dio.dart';
 import 'dart:developer' as developer;
+import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../core/constants/api_constants.dart';
 
 class NewsApiService {
-  static const String _baseUrl = 'https://newsapi.org/v2';
-  static const int maxRequestsPerDay = 100;
-  static const String _requestCountKey = 'api_request_count';
-  static const String _lastResetDateKey = 'api_last_reset_date';
   
   final Dio _dio;
 
@@ -17,9 +14,9 @@ class NewsApiService {
   NewsApiService._internal(String apiKey)
       : _dio = Dio(
           BaseOptions(
-            baseUrl: _baseUrl,
-            connectTimeout: const Duration(seconds: 10),
-            receiveTimeout: const Duration(seconds: 10),
+            baseUrl: ApiConstants.baseUrl,
+            connectTimeout: ApiConstants.requestTimeout,
+            receiveTimeout: ApiConstants.requestTimeout,
             headers: {
               'X-Api-Key': apiKey,
             },
@@ -37,19 +34,22 @@ class NewsApiService {
   Future<void> _loadRateLimitData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      _requestCount = prefs.getInt(_requestCountKey) ?? 0;
+      _requestCount = prefs.getInt(ApiConstants.requestCountKey) ?? 0;
 
-      final dateString = prefs.getString(_lastResetDateKey);
+      final dateString = prefs.getString(ApiConstants.lastResetDateKey);
       if (dateString != null) {
         _lastResetDate = DateTime.parse(dateString);
       }
 
       await _checkAndResetIfNeeded();
     } catch (e) {
-      developer.log('Error loading rate limit data: $e', name: 'NewsApiService');
+      developer.log('Error loading rate limit data: $e', 
+      name: 'NewsApiService'
+      );
     }
   }
 
+  // Reset counter if it's a new day
   Future<void> _checkAndResetIfNeeded() async {
     final now = DateTime.now();
 
@@ -60,23 +60,28 @@ class NewsApiService {
     }
   }
 
+  // Save rate limit data
   Future<void> _saveRateLimitData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(_requestCountKey, _requestCount);
-      await prefs.setString(_lastResetDateKey, _lastResetDate!.toIso8601String());
+      await prefs.setInt(ApiConstants.requestCountKey, _requestCount);
+      await prefs.setString(ApiConstants.lastResetDateKey, _lastResetDate!.toIso8601String());
     } catch (e) {
-      developer.log('Rate limit data loaded', name: 'NewsApiService');
+      developer.log('Rate limit data loaded', 
+      name: 'NewsApiService'
+      );
     }
   }
 
+  // Same day check
   bool _isSameDay(DateTime d1, DateTime d2) =>
       d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
 
+  // Enforce rate limit
   Future<void> _checkRateLimit() async {
     await _checkAndResetIfNeeded();
 
-    if (_requestCount >= maxRequestsPerDay) {
+    if (_requestCount >= 100) {
       throw RateLimitException(
         'Daily rate limit exceeded. You have made $_requestCount requests today. Limit resets at midnight.',
       );
@@ -88,7 +93,7 @@ class NewsApiService {
 
   Future<int> getRemainingRequests() async {
     await _checkAndResetIfNeeded();
-    return maxRequestsPerDay - _requestCount;
+    return 100 - _requestCount;
   }
 
   // Fetch top headlines
