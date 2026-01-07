@@ -1,6 +1,7 @@
 import '../models/article.dart';
 import '../services/news_api_service.dart';
 import '../services/cache_service.dart';
+import 'dart:developer' as developer;
 
 class NewsRepository {
   final NewsApiService _api;
@@ -16,6 +17,7 @@ class NewsRepository {
 
     final cached = await _cache.getFromCache(cacheKey);
     if (cached != null) {
+      developer.log('Cache hit for $cacheKey', name: 'NewsRepository');
       return cached.map(Article.fromJson).toList();
     }
 
@@ -24,8 +26,8 @@ class NewsRepository {
       category: category,
     );
 
-    final articlesJson = (response['articles'] as List)
-        .cast<Map<String, dynamic>>();
+    final List<dynamic> articlesJsonList = response['articles'] ?? [];
+    final articlesJson = articlesJsonList.cast<Map<String, dynamic>>();
 
     await _cache.saveToCache(cacheKey, articlesJson);
 
