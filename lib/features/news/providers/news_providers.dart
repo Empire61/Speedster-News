@@ -19,6 +19,10 @@ final cacheServiceProvider = Provider<CacheService>((ref) {
   return CacheService();
 });
 
+// Note: Using FutureProvider here because NewsApiService requires async
+// initialization to load rate-limiting data. Alternative approach would be
+// lazy initialization on first API call, making this a sync Provider.
+// Current approach prioritizes code simplicity.
 final newsRepositoryProvider = FutureProvider<NewsRepository>((ref) async {
   final api = await ref.watch(newsApiServiceProvider.future);
   final cache = ref.watch(cacheServiceProvider);
