@@ -18,7 +18,7 @@ class CacheService {
       
       developer.log('Cached data for key: $key', name: 'CacheService');
     } catch (e) {
-      developer.log('Cache save failed: $e');
+      developer.log('Cache save failed: $e', name: 'CacheService');
     }
   }
 
@@ -39,9 +39,10 @@ class CacheService {
         return null;
       } 
 
-      final decoded = jsonDecode(cachedData) as List;
+      final List<dynamic> decoded = jsonDecode(cachedData);
       return decoded.cast<Map<String, dynamic>>();
-    } catch (_) {
+    } catch (e) {
+      developer.log('Cache read failed: $e', name: 'CacheService');
       return null;
     }
   }
