@@ -10,6 +10,9 @@ class NewsApiService {
   int _requestCount = 0;
   DateTime? _lastResetDate;
 
+  static NewsApiService? _instance;
+  static bool _isInitialized = false;
+
   // Private constructor
   NewsApiService._internal(String apiKey)
       : _dio = Dio(
@@ -23,11 +26,16 @@ class NewsApiService {
           ),
         );
 
-  // Factory constructor to properly handle async initialization
-  static Future<NewsApiService> create(String apiKey) async {
-    final service = NewsApiService._internal(apiKey);
-    await service._loadRateLimitData();
-    return service;
+  // Singleton async factory
+  static Future<NewsApiService> getInstance(String apiKey) async {
+    _instance ??= NewsApiService._internal(apiKey);
+
+    if (!_isInitialized) {
+      await _instance!._loadRateLimitData();
+      _isInitialized = true;
+    }
+
+    return _instance!;
   }
 
   // Load rate limit data from SharedPreferences
