@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/news_providers.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/error_view.dart';
+import '../widgets/news_card.dart';
+import 'article_detail_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -18,7 +20,6 @@ class HomeScreen extends ConsumerWidget {
           Consumer(
             builder: (context, ref, child) {
               final remainingAsync = ref.watch(remainingRequestsProvider);
-
               return remainingAsync.when(
                 data: (remaining) => Padding(
                   padding: const EdgeInsets.only(right: 16),
@@ -69,13 +70,22 @@ class HomeScreen extends ConsumerWidget {
             if (articles.isEmpty) {
               return _buildEmptyState(context);
             }
-
             return ListView.builder(
               itemCount: articles.length,
               padding: const EdgeInsets.symmetric(vertical: 8),
               itemBuilder: (context, index) {
                 final article = articles[index];
-                return _buildNewsCard(context, article);
+                return NewsCard(
+                  article: article,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ArticleDetailScreen(article: article),
+                      ),
+                    );
+                  },
+                );
               },
             );
           },
@@ -86,105 +96,6 @@ class HomeScreen extends ConsumerWidget {
               ref.invalidate(newsProvider);
             },
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNewsCard(BuildContext context, article) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: InkWell(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening: ${article.title}'),
-              duration: const Duration(seconds: 1),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (article.urlToImage != null)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    article.urlToImage!,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildImagePlaceholder();
-                    },
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return _buildImagePlaceholder();
-                    },
-                  ),
-                )
-              else
-                _buildImagePlaceholder(),
-              const SizedBox(height: 12),
-              Text(
-                article.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      height: 1.3,
-                    ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    Icons.source_outlined,
-                    size: 14,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      article.source.name,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.w500,
-                          ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.access_time, size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatTime(article.publishedAt),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImagePlaceholder() {
-    return Container(
-      height: 180,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Icon(
-          Icons.image_not_supported_outlined,
-          size: 48,
-          color: Colors.grey[400],
         ),
       ),
     );
@@ -207,22 +118,13 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           Text(
             'Pull down to refresh',
-            style:
-                Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: Colors.grey),
           ),
         ],
       ),
     );
-  }
-
-  String _formatTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inMinutes < 1) return 'Just now';
-    if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
-    if (difference.inHours < 24) return '${difference.inHours}h ago';
-    if (difference.inDays < 7) return '${difference.inDays}d ago';
-    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 }
