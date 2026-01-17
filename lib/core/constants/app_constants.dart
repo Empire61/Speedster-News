@@ -1,4 +1,7 @@
 class AppConstants {
+
+  AppConstants._();
+
   // Cache / Preference keys (UI or app-level)
   static const String selectedCountryKey = 'selected_country';
   static const String selectedCategoryKey = 'selected_category';
@@ -104,6 +107,27 @@ class AppConstants {
   static const double defaultPadding = 16.0;
   static const double cardElevation = 2.0;
   static const double borderRadius = 12.0;
+
+  // UI Spacing
+  static const double paddingSmall = 8.0;
+  static const double paddingMedium = 12.0;
+  static const double paddingLarge = 16.0;
+  static const double paddingExtraLarge = 24.0;
+
+  //UI Image Dimensions
+  static const double newsCardImageHeight = 180.0;
+  static const double newsCardImageMemCacheHeight = 360.0;
+
+  static const double detailScreenImageHeight = 250.0;
+  static const double detailScreenImageMemCacheHeight = 500.0;
+
+  static const double cardBorderRadius = 12.0;
+  static const double imageBorderRadius = 8.0;
+
+  static const double iconSizeSmall = 14.0;
+  static const double iconSizeMedium = 16.0;
+  static const double iconSizeLarge = 48.0;
+  static const double iconSizeExtraLarge = 64.0;
 
   // Search debounce
   static const Duration searchDebounceDuration = Duration(milliseconds: 500);
